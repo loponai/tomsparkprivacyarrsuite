@@ -1,6 +1,6 @@
 # ============================================================
 # PRIVACY BOX - Web Installer
-# Created by Tom Spark | https://youtube.com/@TomSpark
+# Created by Tom Spark | https://youtube.com/@TomSparkReviews
 # Get NordVPN: https://nordvpn.tomspark.tech/
 # Usage: irm https://raw.githubusercontent.com/loponai/tomsparkprivacyarrsuite/main/install.ps1 | iex
 # ============================================================
@@ -15,7 +15,7 @@ Write-Host "       PRIVACY BOX - Web Installer" -ForegroundColor White
 Write-Host "  =============================================" -ForegroundColor Cyan
 Write-Host "       Created by " -ForegroundColor DarkGray -NoNewline
 Write-Host "TOM SPARK" -ForegroundColor Yellow
-Write-Host "       youtube.com/@TomSpark" -ForegroundColor DarkGray
+Write-Host "       youtube.com/@TomSparkReviews" -ForegroundColor DarkGray
 Write-Host "  =============================================" -ForegroundColor Cyan
 Write-Host ""
 

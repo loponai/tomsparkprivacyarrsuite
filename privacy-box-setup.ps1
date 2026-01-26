@@ -1,6 +1,6 @@
 # ============================================================
 # PRIVACY BOX - One-Click Media Server Setup
-# Created by Tom Spark | https://youtube.com/@TomSpark
+# Created by Tom Spark | https://youtube.com/@TomSparkReviews
 #
 # LICENSE: MIT with Attribution - You MUST credit Tom Spark
 #          if you share, modify, or create content based on this.
@@ -33,7 +33,7 @@ function Write-Banner {
     Write-Host "         Created by " -ForegroundColor DarkGray -NoNewline
     Write-Host "TOM SPARK" -ForegroundColor Yellow -NoNewline
     Write-Host " | v$script:Version" -ForegroundColor DarkGray
-    Write-Host "      YouTube: youtube.com/@TomSpark" -ForegroundColor DarkGray
+    Write-Host "      YouTube: youtube.com/@TomSparkReviews" -ForegroundColor DarkGray
     Write-Host "      NordVPN: nordvpn.tomspark.tech" -ForegroundColor DarkGray
     Write-Host "  =====================================================" -ForegroundColor Cyan
     Write-Host "   (c) 2026 Tom Spark. Licensed under MIT+Attribution." -ForegroundColor DarkGray
@@ -234,7 +234,7 @@ function New-EnvFile {
     $content = @"
 # ==========================================
 # TOM SPARK'S PRIVACY BOX CONFIG
-# Created by Tom Spark | youtube.com/@TomSpark
+# Created by Tom Spark | youtube.com/@TomSparkReviews
 # Get NordVPN: nordvpn.tomspark.tech
 # ==========================================
 
@@ -261,7 +261,7 @@ function New-DockerComposeFile {
     $content = @'
 # ==========================================
 # TOM SPARK'S PRIVACY BOX
-# Created by Tom Spark | youtube.com/@TomSpark
+# Created by Tom Spark | youtube.com/@TomSparkReviews
 # Get NordVPN: nordvpn.tomspark.tech
 # ==========================================
 
@@ -582,7 +582,7 @@ function Show-SetupGuide {
     Write-Host ""
     Write-Host "  =============================================" -ForegroundColor Cyan
     Write-Host "  Created by TOM SPARK" -ForegroundColor Yellow
-    Write-Host "  Subscribe: youtube.com/@TomSpark" -ForegroundColor White
+    Write-Host "  Subscribe: youtube.com/@TomSparkReviews" -ForegroundColor White
     Write-Host "  Get NordVPN: nordvpn.tomspark.tech" -ForegroundColor White
     Write-Host "  =============================================" -ForegroundColor Cyan
     Write-Host ""

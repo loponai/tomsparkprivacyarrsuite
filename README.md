@@ -113,7 +113,7 @@ All containers share Gluetun's network = Zero IP leaks
 
 You are free to use, modify, and share this software, but you **MUST credit Tom Spark** in any public distribution, video, blog post, or derivative work.
 
-**Required attribution:** `Created by Tom Spark - youtube.com/@TomSpark`
+**Required attribution:** `Created by Tom Spark - youtube.com/@TomSparkReviews`
 
 Failure to attribute = DMCA takedown. See [LICENSE](LICENSE) for full terms.
 
