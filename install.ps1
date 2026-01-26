@@ -1,13 +1,22 @@
-# Privacy Box - Web Installer
+# ============================================================
+# PRIVACY BOX - Web Installer
+# Created by Tom Spark | https://youtube.com/@TomSpark
+# Get NordVPN: https://nordvpn.tomspark.tech/
 # Usage: irm https://raw.githubusercontent.com/loponai/tomsparkprivacyarrsuite/main/install.ps1 | iex
+# ============================================================
 
 $repo = "loponai/tomsparkprivacyarrsuite"
 $branch = "main"
 $installDir = "$env:USERPROFILE\Desktop\PrivacyServer"
 
 Write-Host ""
-Write-Host "  Privacy Box Installer" -ForegroundColor Cyan
-Write-Host "  =====================" -ForegroundColor Cyan
+Write-Host "  =============================================" -ForegroundColor Cyan
+Write-Host "       PRIVACY BOX - Web Installer" -ForegroundColor White
+Write-Host "  =============================================" -ForegroundColor Cyan
+Write-Host "       Created by " -ForegroundColor DarkGray -NoNewline
+Write-Host "TOM SPARK" -ForegroundColor Yellow
+Write-Host "       youtube.com/@TomSpark" -ForegroundColor DarkGray
+Write-Host "  =============================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Create directory

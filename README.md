@@ -109,7 +109,13 @@ All containers share Gluetun's network = Zero IP leaks
 
 ## License
 
-MIT License - Use freely, modify freely, share freely.
+**MIT License with Attribution Requirement**
+
+You are free to use, modify, and share this software, but you **MUST credit Tom Spark** in any public distribution, video, blog post, or derivative work.
+
+**Required attribution:** `Created by Tom Spark - youtube.com/@TomSpark`
+
+Failure to attribute = DMCA takedown. See [LICENSE](LICENSE) for full terms.
 
 ## Support This Project
 
