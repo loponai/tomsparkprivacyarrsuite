@@ -1,0 +1,85 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8080:8080
+      - 8181:9696
+      - 8989:8989
+      - 7878:7878
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_TYPE}
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${VPN_USER}
+      - OPENVPN_PASSWORD=${VPN_PASSWORD}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
+    volumes:
+      - ${ROOT_DIR}/config/gluetun:/gluetun
+    restart: always
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${ROOT_DIR}/config/qbittorrent:/config
+      - ${ROOT_DIR}/media/downloads:/data/downloads
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    restart: always
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT_DIR}/config/prowlarr:/config
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    restart: always
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT_DIR}/config/sonarr:/config
+      - ${ROOT_DIR}/media:/data/media
+      - ${ROOT_DIR}/media/downloads:/data/downloads
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    restart: always
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT_DIR}/config/radarr:/config
+      - ${ROOT_DIR}/media:/data/media
+      - ${ROOT_DIR}/media/downloads:/data/downloads
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    restart: always
