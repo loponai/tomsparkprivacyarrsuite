@@ -496,7 +496,14 @@ function Show-SetupGuide {
     Write-Host ""
     Write-Host "  1. Create your admin account when prompted" -ForegroundColor White
     Write-Host ""
-    Write-Host "  2. Add Download Client:" -ForegroundColor Yellow
+    Write-Host "  2. Add Root Folder (where TV shows are saved):" -ForegroundColor Yellow
+    Write-Host "     - Go to: Settings > Media Management" -ForegroundColor White
+    Write-Host "     - Scroll down and click 'Add Root Folder'" -ForegroundColor White
+    Write-Host "     - Enter path: " -ForegroundColor White -NoNewline
+    Write-Host "/data/media/tv" -ForegroundColor Cyan
+    Write-Host "     - Click 'OK'" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  3. Add Download Client:" -ForegroundColor Yellow
     Write-Host "     - Go to: Settings > Download Clients" -ForegroundColor White
     Write-Host "     - Click '+' and select 'qBittorrent'" -ForegroundColor White
     Write-Host "     - Host: " -ForegroundColor White -NoNewline
@@ -509,7 +516,7 @@ function Show-SetupGuide {
     Write-Host "(your qBittorrent password)" -ForegroundColor Cyan
     Write-Host "     - Click 'Test' then 'Save'" -ForegroundColor White
     Write-Host ""
-    Write-Host "  3. Copy your API Key:" -ForegroundColor Yellow
+    Write-Host "  4. Copy your API Key:" -ForegroundColor Yellow
     Write-Host "     - Go to: Settings > General" -ForegroundColor White
     Write-Host "     - Copy the 'API Key' (you'll need this for Prowlarr)" -ForegroundColor White
 
@@ -526,7 +533,14 @@ function Show-SetupGuide {
     Write-Host ""
     Write-Host "  1. Create your admin account when prompted" -ForegroundColor White
     Write-Host ""
-    Write-Host "  2. Add Download Client (same as Sonarr):" -ForegroundColor Yellow
+    Write-Host "  2. Add Root Folder (where movies are saved):" -ForegroundColor Yellow
+    Write-Host "     - Go to: Settings > Media Management" -ForegroundColor White
+    Write-Host "     - Scroll down and click 'Add Root Folder'" -ForegroundColor White
+    Write-Host "     - Enter path: " -ForegroundColor White -NoNewline
+    Write-Host "/data/media/movies" -ForegroundColor Cyan
+    Write-Host "     - Click 'OK'" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  3. Add Download Client (same as Sonarr):" -ForegroundColor Yellow
     Write-Host "     - Go to: Settings > Download Clients" -ForegroundColor White
     Write-Host "     - Click '+' and select 'qBittorrent'" -ForegroundColor White
     Write-Host "     - Host: " -ForegroundColor White -NoNewline
@@ -536,7 +550,7 @@ function Show-SetupGuide {
     Write-Host "     - Username/Password: same as before" -ForegroundColor White
     Write-Host "     - Click 'Test' then 'Save'" -ForegroundColor White
     Write-Host ""
-    Write-Host "  3. Copy your API Key:" -ForegroundColor Yellow
+    Write-Host "  4. Copy your API Key:" -ForegroundColor Yellow
     Write-Host "     - Go to: Settings > General" -ForegroundColor White
     Write-Host "     - Copy the 'API Key' (you'll need this for Prowlarr)" -ForegroundColor White
 
@@ -575,6 +589,58 @@ function Show-SetupGuide {
 
     Press-Enter
 
+    # --- Media Player Setup (Optional) ---
+    Write-Banner
+    Write-Host "  OPTIONAL: Watch Your Media on Other Devices" -ForegroundColor Magenta
+    Write-Host "  --------------------------------------------" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Want to watch your downloaded media on a TV, phone, or tablet?" -ForegroundColor White
+    Write-Host "  Install Jellyfin (free) or Emby on this PC, then connect from any device!" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  " -NoNewline
+    Write-Host " STEP 1: Install a Media Server " -BackgroundColor DarkBlue -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Choose ONE:" -ForegroundColor Yellow
+    Write-Host "    Jellyfin (FREE): https://jellyfin.org/downloads" -ForegroundColor Cyan
+    Write-Host "    Emby (Free/Paid): https://emby.media/download.html" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  During setup, add your media library folder:" -ForegroundColor White
+    Write-Host "    TV Shows:  " -ForegroundColor Gray -NoNewline
+    Write-Host "C:\Users\$env:USERNAME\Desktop\PrivacyServer\media\tv" -ForegroundColor Cyan
+    Write-Host "    Movies:    " -ForegroundColor Gray -NoNewline
+    Write-Host "C:\Users\$env:USERNAME\Desktop\PrivacyServer\media\movies" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  " -NoNewline
+    Write-Host " STEP 2: Connect from Other Devices " -BackgroundColor DarkBlue -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Same Network (Home WiFi):" -ForegroundColor Yellow
+    Write-Host "    1. Find this PC's IP: Open CMD and type 'ipconfig'" -ForegroundColor White
+    Write-Host "       Look for 'IPv4 Address' (e.g., 192.168.1.100)" -ForegroundColor Gray
+    Write-Host "    2. On your other device, open the Jellyfin/Emby app" -ForegroundColor White
+    Write-Host "    3. Enter: " -ForegroundColor White -NoNewline
+    Write-Host "http://YOUR-PC-IP:8096" -ForegroundColor Cyan -NoNewline
+    Write-Host " (Jellyfin) or " -ForegroundColor White -NoNewline
+    Write-Host ":8920" -ForegroundColor Cyan -NoNewline
+    Write-Host " (Emby)" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  " -NoNewline
+    Write-Host " CAN'T CONNECT? " -BackgroundColor DarkRed -ForegroundColor White
+    Write-Host ""
+    Write-Host "  If devices on your network can't reach the server:" -ForegroundColor Yellow
+    Write-Host "    1. Open Windows Defender Firewall" -ForegroundColor White
+    Write-Host "    2. Click 'Allow an app through firewall'" -ForegroundColor White
+    Write-Host "    3. Click 'Change settings' then 'Allow another app'" -ForegroundColor White
+    Write-Host "    4. Browse to Jellyfin/Emby and add it" -ForegroundColor White
+    Write-Host "    5. Check BOTH 'Private' and 'Public' boxes" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Or allow the port directly (PowerShell as Admin):" -ForegroundColor Gray
+    Write-Host "    Jellyfin: " -ForegroundColor Gray -NoNewline
+    Write-Host "netsh advfirewall firewall add rule name=`"Jellyfin`" dir=in action=allow protocol=tcp localport=8096" -ForegroundColor DarkGray
+    Write-Host "    Emby:     " -ForegroundColor Gray -NoNewline
+    Write-Host "netsh advfirewall firewall add rule name=`"Emby`" dir=in action=allow protocol=tcp localport=8920" -ForegroundColor DarkGray
+
+    Press-Enter
+
     # --- Complete ---
     Write-Banner
     Write-Host ""
@@ -587,6 +653,9 @@ function Show-SetupGuide {
     Write-Host "    Prowlarr:     http://localhost:8181" -ForegroundColor White
     Write-Host "    Sonarr:       http://localhost:8989" -ForegroundColor White
     Write-Host "    Radarr:       http://localhost:7878" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  Your media folder:" -ForegroundColor Yellow
+    Write-Host "    $env:USERPROFILE\Desktop\PrivacyServer\media\" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  Your traffic is now secured through the VPN!" -ForegroundColor Green
     Write-Host ""

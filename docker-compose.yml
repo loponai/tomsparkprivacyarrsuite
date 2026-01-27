@@ -1,3 +1,9 @@
+﻿# ==========================================
+# TOM SPARK'S PRIVACY BOX
+# Created by Tom Spark | youtube.com/@TomSparkReviews
+# Get NordVPN: nordvpn.tomspark.tech
+# ==========================================
+
 services:
   gluetun:
     image: qmcgaw/gluetun
@@ -7,10 +13,10 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      - 8080:8080
-      - 8181:9696
-      - 8989:8989
-      - 7878:7878
+      - 8080:8080   # qBittorrent
+      - 8181:9696   # Prowlarr (Safe Port - avoids Windows conflicts)
+      - 8989:8989   # Sonarr
+      - 7878:7878   # Radarr
     environment:
       - VPN_SERVICE_PROVIDER=${VPN_TYPE}
       - VPN_TYPE=openvpn
