@@ -6,7 +6,10 @@
 # LICENSE: MIT with Attribution - You MUST credit Tom Spark
 #          if you share, modify, or create content based on this.
 #
-# Get NordVPN: https://nordvpn.tomspark.tech/
+# VPN Options:
+#   NordVPN:   nordvpn.tomspark.tech   (4 extra months FREE!)
+#   ProtonVPN: protonvpn.tomspark.tech (3 months FREE!)
+#   Surfshark: surfshark.tomspark.tech (3 extra months FREE!)
 # GitHub: https://github.com/loponai/tomsparkprivacyarrsuite
 # ============================================================
 
@@ -33,7 +36,7 @@ write_banner() {
     echo -e "  ${CYAN}=====================================================${NC}"
     echo -e "         ${DARKGRAY}Created by ${YELLOW}TOM SPARK${DARKGRAY} | v${VERSION}${NC}"
     echo -e "      ${DARKGRAY}YouTube: youtube.com/@TomSparkReviews${NC}"
-    echo -e "      ${DARKGRAY}Get NordVPN: ${CYAN}nordvpn.tomspark.tech${NC} ${GREEN}(4 extra months free!)${NC}"
+    echo -e "      ${DARKGRAY}VPN Deals: ${CYAN}nordvpn.tomspark.tech${NC} | ${CYAN}protonvpn.tomspark.tech${NC} | ${CYAN}surfshark.tomspark.tech${NC}"
     echo -e "  ${CYAN}=====================================================${NC}"
     echo -e "   ${DARKGRAY}(c) 2026 Tom Spark. Licensed under MIT+Attribution.${NC}"
     echo -e "   ${RED}Unauthorized copying without credit = DMCA takedown.${NC}"
@@ -112,26 +115,72 @@ test_docker_running() {
     return 0
 }
 
+# --- VPN Provider Selection ---
+get_vpn_provider() {
+    write_banner
+    echo -e "  ${MAGENTA}STEP 1: CHOOSE YOUR VPN${NC}"
+    echo -e "  ${DARKGRAY}-----------------------${NC}"
+    echo ""
+    echo -e "  ${WHITE}Which VPN provider do you use?${NC}"
+    echo ""
+    echo -e "    ${GREEN}1. NordVPN${NC}     ${GRAY}- nordvpn.tomspark.tech${NC} ${GREEN}(4 extra months FREE!)${NC}"
+    echo -e "    ${CYAN}2. ProtonVPN${NC}   ${GRAY}- protonvpn.tomspark.tech${NC} ${CYAN}(3 months FREE!)${NC}"
+    echo -e "    ${YELLOW}3. Surfshark${NC}   ${GRAY}- surfshark.tomspark.tech${NC} ${YELLOW}(3 extra months FREE!)${NC}"
+    echo ""
+    echo -ne "  ${YELLOW}Select (1-3) [default: 1]: ${NC}"
+    read -r choice
+
+    case "$choice" in
+        2)
+            VPN_PROVIDER="protonvpn"
+            VPN_NAME="ProtonVPN"
+            VPN_URL="https://account.proton.me/u/0/vpn/OpenVpnIKEv2"
+            VPN_AFFILIATE="https://protonvpn.tomspark.tech/"
+            VPN_BONUS="3 months FREE"
+            ;;
+        3)
+            VPN_PROVIDER="surfshark"
+            VPN_NAME="Surfshark"
+            VPN_URL="https://my.surfshark.com/vpn/manual-setup/main/openvpn"
+            VPN_AFFILIATE="https://surfshark.tomspark.tech/"
+            VPN_BONUS="3 extra months FREE"
+            ;;
+        *)
+            VPN_PROVIDER="nordvpn"
+            VPN_NAME="NordVPN"
+            VPN_URL="https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/"
+            VPN_AFFILIATE="https://nordvpn.tomspark.tech/"
+            VPN_BONUS="4 extra months FREE"
+            ;;
+    esac
+
+    echo ""
+    write_success "Selected: $VPN_NAME"
+}
+
 # --- Credential Collection ---
 get_vpn_credentials() {
     write_banner
-    echo -e "  ${MAGENTA}STEP 1: VPN CREDENTIALS${NC}"
+    echo -e "  ${MAGENTA}STEP 2: VPN CREDENTIALS${NC}"
     echo -e "  ${DARKGRAY}-----------------------${NC}"
     echo ""
-    write_warning "You need NordVPN 'Service Credentials' (NOT your email/password!)"
+    write_warning "You need $VPN_NAME 'Service Credentials' (NOT your email/password!)"
     echo ""
     echo -e "  ${WHITE}How to get them:${NC}"
-    echo -e "  ${GRAY}1. Go to: ${CYAN}https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/${NC}"
-    echo -e "  ${GRAY}2. Click 'Set up NordVPN manually'${NC}"
+    echo -e "  ${GRAY}1. Go to: ${CYAN}${VPN_URL}${NC}"
+    echo -e "  ${GRAY}2. Look for 'Manual Setup' or 'OpenVPN' credentials${NC}"
     echo -e "  ${GRAY}3. Copy the Username and Password shown there${NC}"
     echo ""
+    echo -e "  ${GREEN}Don't have ${VPN_NAME}? Get ${VPN_BONUS}!${NC}"
+    echo -e "  ${CYAN}${VPN_AFFILIATE}${NC}"
+    echo ""
 
-    if ask_yes_no "Open NordVPN dashboard in your browser now?"; then
+    if ask_yes_no "Open $VPN_NAME credential page in your browser now?"; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            open "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/"
+            open "$VPN_URL"
         else
-            xdg-open "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/" 2>/dev/null || \
-            echo -e "  ${CYAN}https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/${NC}"
+            xdg-open "$VPN_URL" 2>/dev/null || \
+            echo -e "  ${CYAN}${VPN_URL}${NC}"
         fi
         echo ""
         write_info "Browser opened. Copy your credentials, then come back here."
@@ -155,7 +204,7 @@ get_vpn_credentials() {
 
 get_server_country() {
     write_banner
-    echo -e "  ${MAGENTA}STEP 2: SERVER LOCATION${NC}"
+    echo -e "  ${MAGENTA}STEP 3: SERVER LOCATION${NC}"
     echo -e "  ${DARKGRAY}-----------------------${NC}"
     echo ""
     echo -e "  ${YELLOW}Pick the closest country to you for best speeds!${NC}"
@@ -185,7 +234,7 @@ get_server_country() {
 
 get_timezone() {
     write_banner
-    echo -e "  ${MAGENTA}STEP 3: TIMEZONE${NC}"
+    echo -e "  ${MAGENTA}STEP 4: TIMEZONE${NC}"
     echo -e "  ${DARKGRAY}----------------${NC}"
     echo ""
     echo -e "  ${WHITE}Common timezones:${NC}"
@@ -220,12 +269,15 @@ create_env_file() {
 # ==========================================
 # TOM SPARK'S PRIVACY BOX CONFIG
 # Created by Tom Spark | youtube.com/@TomSparkReviews
-# Get NordVPN: nordvpn.tomspark.tech
+#
+# VPN: ${VPN_NAME} (${VPN_AFFILIATE})
 # ==========================================
 
+# --- VPN PROVIDER ---
+VPN_PROVIDER=${VPN_PROVIDER}
+
 # --- VPN CREDENTIALS ---
-# These are NordVPN Service Credentials (NOT email/password)
-VPN_TYPE=nordvpn
+# Service Credentials from: ${VPN_URL}
 VPN_USER="${VPN_USERNAME}"
 VPN_PASSWORD="${VPN_PASSWORD}"
 
@@ -607,8 +659,11 @@ show_setup_guide() {
     echo -e "  ${CYAN}=============================================${NC}"
     echo -e "  ${YELLOW}Created by TOM SPARK${NC}"
     echo -e "  ${WHITE}Subscribe: youtube.com/@TomSparkReviews${NC}"
-    echo -e "  ${WHITE}Get NordVPN: ${CYAN}nordvpn.tomspark.tech${NC}"
-    echo -e "  ${GREEN} 4 EXTRA MONTHS FREE + DISCOUNT ${NC}"
+    echo ""
+    echo -e "  ${WHITE}VPN Deals:${NC}"
+    echo -e "    ${GREEN}NordVPN:   nordvpn.tomspark.tech   (4 extra months FREE!)${NC}"
+    echo -e "    ${CYAN}ProtonVPN: protonvpn.tomspark.tech (3 months FREE!)${NC}"
+    echo -e "    ${YELLOW}Surfshark: surfshark.tomspark.tech (3 extra months FREE!)${NC}"
     echo -e "  ${CYAN}=============================================${NC}"
     echo ""
     echo -e "  ${YELLOW}Questions? Join the Discord!${NC}"
@@ -635,6 +690,9 @@ main() {
     press_enter
 
     # Collect configuration
+    get_vpn_provider
+    press_enter
+
     if ! get_vpn_credentials; then
         exit 1
     fi
@@ -648,6 +706,7 @@ main() {
     echo -e "  ${DARKGRAY}---------------------${NC}"
     echo ""
     echo -e "  ${WHITE}Install Path:    ${SCRIPT_DIR}${NC}"
+    echo -e "  ${WHITE}VPN Provider:    ${VPN_NAME}${NC}"
     echo -e "  ${WHITE}VPN Username:    ${VPN_USERNAME}${NC}"
     echo -e "  ${WHITE}VPN Password:    $(printf '*%.0s' $(seq 1 ${#VPN_PASSWORD}))${NC}"
     echo -e "  ${WHITE}Server Country:  ${SERVER_COUNTRY}${NC}"
@@ -688,9 +747,9 @@ main() {
         write_error "Setup failed. Please check your VPN credentials."
         echo ""
         echo -e "  ${YELLOW}Common fixes:${NC}"
-        echo -e "    ${WHITE}1. Make sure you're using 'Service Credentials' from NordVPN${NC}"
+        echo -e "    ${WHITE}1. Make sure you're using 'Service Credentials' from ${VPN_NAME}${NC}"
         echo -e "    ${WHITE}2. NOT your email/password login${NC}"
-        echo -e "    ${WHITE}3. Try regenerating the credentials on NordVPN's website${NC}"
+        echo -e "    ${WHITE}3. Get credentials from: ${CYAN}${VPN_URL}${NC}"
         echo ""
         echo -e "  ${GRAY}To retry, run this script again.${NC}"
     fi

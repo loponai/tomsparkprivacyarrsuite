@@ -5,7 +5,10 @@
 # LICENSE: MIT with Attribution - You MUST credit Tom Spark
 #          if you share, modify, or create content based on this.
 #
-# Get NordVPN: https://nordvpn.tomspark.tech/
+# VPN Options:
+#   NordVPN:   nordvpn.tomspark.tech   (4 extra months FREE!)
+#   ProtonVPN: protonvpn.tomspark.tech (3 months FREE!)
+#   Surfshark: surfshark.tomspark.tech (3 extra months FREE!)
 # GitHub: https://github.com/loponai/tomsparkprivacyarrsuite
 # ============================================================
 
@@ -34,9 +37,8 @@ function Write-Banner {
     Write-Host "TOM SPARK" -ForegroundColor Yellow -NoNewline
     Write-Host " | v$script:Version" -ForegroundColor DarkGray
     Write-Host "      YouTube: youtube.com/@TomSparkReviews" -ForegroundColor DarkGray
-    Write-Host "      Get NordVPN: " -ForegroundColor DarkGray -NoNewline
-    Write-Host "nordvpn.tomspark.tech" -ForegroundColor Cyan -NoNewline
-    Write-Host " (4 extra months free!)" -ForegroundColor Green
+    Write-Host "      VPN Deals: " -ForegroundColor DarkGray -NoNewline
+    Write-Host "nordvpn.tomspark.tech | protonvpn.tomspark.tech | surfshark.tomspark.tech" -ForegroundColor Cyan
     Write-Host "  =====================================================" -ForegroundColor Cyan
     Write-Host "   (c) 2026 Tom Spark. Licensed under MIT+Attribution." -ForegroundColor DarkGray
     Write-Host "   Unauthorized copying without credit = DMCA takedown." -ForegroundColor DarkRed
@@ -126,23 +128,80 @@ function Test-DockerRunning {
     }
 }
 
-# --- Credential Collection ---
-function Get-VPNCredentials {
+# --- VPN Provider Selection ---
+function Get-VPNProvider {
     Write-Banner
-    Write-Host "  STEP 1: VPN CREDENTIALS" -ForegroundColor Magenta
+    Write-Host "  STEP 1: CHOOSE YOUR VPN" -ForegroundColor Magenta
     Write-Host "  -----------------------" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Warning-Custom "You need NordVPN 'Service Credentials' (NOT your email/password!)"
+    Write-Host "  Which VPN provider do you use?" -ForegroundColor White
+    Write-Host ""
+    Write-Host "    1. NordVPN" -ForegroundColor Green -NoNewline
+    Write-Host "     - nordvpn.tomspark.tech " -ForegroundColor Gray -NoNewline
+    Write-Host "(4 extra months FREE!)" -ForegroundColor Green
+    Write-Host "    2. ProtonVPN" -ForegroundColor Cyan -NoNewline
+    Write-Host "   - protonvpn.tomspark.tech " -ForegroundColor Gray -NoNewline
+    Write-Host "(3 months FREE!)" -ForegroundColor Cyan
+    Write-Host "    3. Surfshark" -ForegroundColor Yellow -NoNewline
+    Write-Host "   - surfshark.tomspark.tech " -ForegroundColor Gray -NoNewline
+    Write-Host "(3 extra months FREE!)" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  Select (1-3) [default: 1]: " -ForegroundColor Yellow -NoNewline
+    $choice = Read-Host
+
+    switch ($choice) {
+        "2" {
+            return @{
+                Provider = "protonvpn"
+                Name = "ProtonVPN"
+                URL = "https://account.proton.me/u/0/vpn/OpenVpnIKEv2"
+                Affiliate = "https://protonvpn.tomspark.tech/"
+                Bonus = "3 months FREE"
+            }
+        }
+        "3" {
+            return @{
+                Provider = "surfshark"
+                Name = "Surfshark"
+                URL = "https://my.surfshark.com/vpn/manual-setup/main/openvpn"
+                Affiliate = "https://surfshark.tomspark.tech/"
+                Bonus = "3 extra months FREE"
+            }
+        }
+        default {
+            return @{
+                Provider = "nordvpn"
+                Name = "NordVPN"
+                URL = "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/"
+                Affiliate = "https://nordvpn.tomspark.tech/"
+                Bonus = "4 extra months FREE"
+            }
+        }
+    }
+}
+
+# --- Credential Collection ---
+function Get-VPNCredentials {
+    param([hashtable]$VPN)
+
+    Write-Banner
+    Write-Host "  STEP 2: VPN CREDENTIALS" -ForegroundColor Magenta
+    Write-Host "  -----------------------" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Warning-Custom "You need $($VPN.Name) 'Service Credentials' (NOT your email/password!)"
     Write-Host ""
     Write-Host "  How to get them:" -ForegroundColor White
     Write-Host "  1. Go to: " -ForegroundColor Gray -NoNewline
-    Write-Host "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/" -ForegroundColor Cyan
-    Write-Host "  2. Click 'Set up NordVPN manually'" -ForegroundColor Gray
+    Write-Host $VPN.URL -ForegroundColor Cyan
+    Write-Host "  2. Look for 'Manual Setup' or 'OpenVPN' credentials" -ForegroundColor Gray
     Write-Host "  3. Copy the Username and Password shown there" -ForegroundColor Gray
     Write-Host ""
+    Write-Host "  Don't have $($VPN.Name)? Get $($VPN.Bonus)!" -ForegroundColor Green
+    Write-Host "  $($VPN.Affiliate)" -ForegroundColor Cyan
+    Write-Host ""
 
-    if (Ask-YesNo "Open NordVPN dashboard in your browser now?") {
-        Start-Process "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/"
+    if (Ask-YesNo "Open $($VPN.Name) credential page in your browser now?") {
+        Start-Process $VPN.URL
         Write-Host ""
         Write-Info "Browser opened. Copy your credentials, then come back here."
         Press-Enter
@@ -168,7 +227,7 @@ function Get-VPNCredentials {
 
 function Get-ServerCountry {
     Write-Banner
-    Write-Host "  STEP 2: SERVER LOCATION" -ForegroundColor Magenta
+    Write-Host "  STEP 3: SERVER LOCATION" -ForegroundColor Magenta
     Write-Host "  -----------------------" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Pick the closest country to you for best speeds!" -ForegroundColor Yellow
@@ -198,7 +257,7 @@ function Get-ServerCountry {
 
 function Get-Timezone {
     Write-Banner
-    Write-Host "  STEP 3: TIMEZONE" -ForegroundColor Magenta
+    Write-Host "  STEP 4: TIMEZONE" -ForegroundColor Magenta
     Write-Host "  ----------------" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Common timezones:" -ForegroundColor White
@@ -231,6 +290,7 @@ function Get-Timezone {
 function New-EnvFile {
     param(
         [string]$Path,
+        [hashtable]$VPN,
         [hashtable]$Credentials,
         [string]$Country,
         [string]$Timezone
@@ -240,12 +300,15 @@ function New-EnvFile {
 # ==========================================
 # TOM SPARK'S PRIVACY BOX CONFIG
 # Created by Tom Spark | youtube.com/@TomSparkReviews
-# Get NordVPN: nordvpn.tomspark.tech
+#
+# VPN: $($VPN.Name) ($($VPN.Affiliate))
 # ==========================================
 
+# --- VPN PROVIDER ---
+VPN_PROVIDER=$($VPN.Provider)
+
 # --- VPN CREDENTIALS ---
-# These are NordVPN Service Credentials (NOT email/password)
-VPN_TYPE=nordvpn
+# Service Credentials from: $($VPN.URL)
 VPN_USER="$($Credentials.Username)"
 VPN_PASSWORD="$($Credentials.Password)"
 
@@ -267,7 +330,11 @@ function New-DockerComposeFile {
 # ==========================================
 # TOM SPARK'S PRIVACY BOX
 # Created by Tom Spark | youtube.com/@TomSparkReviews
-# Get NordVPN: nordvpn.tomspark.tech
+#
+# VPN Options:
+#   NordVPN:   nordvpn.tomspark.tech   (4 extra months FREE!)
+#   ProtonVPN: protonvpn.tomspark.tech (3 months FREE!)
+#   Surfshark: surfshark.tomspark.tech (3 extra months FREE!)
 # ==========================================
 
 services:
@@ -284,7 +351,7 @@ services:
       - 8989:8989   # Sonarr
       - 7878:7878   # Radarr
     environment:
-      - VPN_SERVICE_PROVIDER=${VPN_TYPE}
+      - VPN_SERVICE_PROVIDER=${VPN_PROVIDER}
       - VPN_TYPE=openvpn
       - OPENVPN_USER=${VPN_USER}
       - OPENVPN_PASSWORD=${VPN_PASSWORD}
@@ -775,10 +842,14 @@ function Show-SetupGuide {
     Write-Host "  =============================================" -ForegroundColor Cyan
     Write-Host "  Created by TOM SPARK" -ForegroundColor Yellow
     Write-Host "  Subscribe: youtube.com/@TomSparkReviews" -ForegroundColor White
-    Write-Host "  Get NordVPN: " -ForegroundColor White -NoNewline
-    Write-Host "nordvpn.tomspark.tech" -ForegroundColor Cyan
-    Write-Host "  " -NoNewline
-    Write-Host " 4 EXTRA MONTHS FREE + DISCOUNT " -BackgroundColor DarkGreen -ForegroundColor White
+    Write-Host ""
+    Write-Host "  VPN Deals:" -ForegroundColor White
+    Write-Host "    NordVPN:   nordvpn.tomspark.tech   " -ForegroundColor Green -NoNewline
+    Write-Host "(4 extra months FREE!)" -ForegroundColor Green
+    Write-Host "    ProtonVPN: protonvpn.tomspark.tech " -ForegroundColor Cyan -NoNewline
+    Write-Host "(3 months FREE!)" -ForegroundColor Cyan
+    Write-Host "    Surfshark: surfshark.tomspark.tech " -ForegroundColor Yellow -NoNewline
+    Write-Host "(3 extra months FREE!)" -ForegroundColor Yellow
     Write-Host "  =============================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  Questions? Join the Discord!" -ForegroundColor Yellow
@@ -807,7 +878,12 @@ function Main {
     Press-Enter
 
     # Collect configuration
-    $credentials = Get-VPNCredentials
+    $vpn = Get-VPNProvider
+    Write-Host ""
+    Write-Success "Selected: $($vpn.Name)"
+    Press-Enter
+
+    $credentials = Get-VPNCredentials -VPN $vpn
     if (-not $credentials) {
         exit 1
     }
@@ -821,6 +897,7 @@ function Main {
     Write-Host "  ---------------------" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Install Path:    $InstallPath" -ForegroundColor White
+    Write-Host "  VPN Provider:    $($vpn.Name)" -ForegroundColor White
     Write-Host "  VPN Username:    $($credentials.Username)" -ForegroundColor White
     Write-Host "  VPN Password:    $("*" * $credentials.Password.Length)" -ForegroundColor White
     Write-Host "  Server Country:  $country" -ForegroundColor White
@@ -846,7 +923,7 @@ function Main {
     Write-Success "Directories created"
 
     Write-Step "2" "Generating .env file..."
-    New-EnvFile -Path $InstallPath -Credentials $credentials -Country $country -Timezone $timezone
+    New-EnvFile -Path $InstallPath -VPN $vpn -Credentials $credentials -Country $country -Timezone $timezone
     Write-Success ".env file created"
 
     Write-Step "3" "Generating docker-compose.yml..."
@@ -866,9 +943,10 @@ function Main {
         Write-Error-Custom "Setup failed. Please check your VPN credentials."
         Write-Host ""
         Write-Host "  Common fixes:" -ForegroundColor Yellow
-        Write-Host "    1. Make sure you're using 'Service Credentials' from NordVPN" -ForegroundColor White
+        Write-Host "    1. Make sure you're using 'Service Credentials' from $($vpn.Name)" -ForegroundColor White
         Write-Host "    2. NOT your email/password login" -ForegroundColor White
-        Write-Host "    3. Try regenerating the credentials on NordVPN's website" -ForegroundColor White
+        Write-Host "    3. Get credentials from: " -ForegroundColor White -NoNewline
+        Write-Host $vpn.URL -ForegroundColor Cyan
         Write-Host ""
         Write-Host "  To retry, run this script again." -ForegroundColor Gray
     }

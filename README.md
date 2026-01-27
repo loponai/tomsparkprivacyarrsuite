@@ -22,7 +22,10 @@ A setup script that automatically deploys a complete *arr stack (Sonarr, Radarr,
 curl -fsSL https://raw.githubusercontent.com/loponai/tomsparkprivacyarrsuite/main/install.sh | bash
 ```
 
-> **Need NordVPN?** [Get 4 extra months FREE + discount!](https://nordvpn.tomspark.tech/)
+> **Need a VPN?**
+> - [**NordVPN**](https://nordvpn.tomspark.tech/) - 4 extra months FREE!
+> - [**ProtonVPN**](https://protonvpn.tomspark.tech/) - 3 months FREE!
+> - [**Surfshark**](https://surfshark.tomspark.tech/) - 3 extra months FREE!
 
 ---
 
@@ -30,7 +33,8 @@ curl -fsSL https://raw.githubusercontent.com/loponai/tomsparkprivacyarrsuite/mai
 
 - **One-click setup** - No manual file editing required
 - **Cross-platform** - Works on Windows, macOS, and Linux
-- **VPN Kill Switch** - All traffic routed through Gluetun (NordVPN)
+- **Multi-VPN support** - Works with NordVPN, ProtonVPN, or Surfshark
+- **VPN Kill Switch** - All traffic routed through Gluetun
 - **Jellyfin included** - Stream your media to any device out of the box
 - **Pre-configured ports** - Avoids common port conflicts
 - **Guided configuration** - Step-by-step instructions for connecting all apps
@@ -45,14 +49,17 @@ curl -fsSL https://raw.githubusercontent.com/loponai/tomsparkprivacyarrsuite/mai
 | Sonarr | `localhost:8989` | TV show manager |
 | Radarr | `localhost:7878` | Movie manager |
 | Jellyfin | `localhost:8096` | Media server (watch on any device!) |
-| Gluetun | - | VPN tunnel (NordVPN) |
+| Gluetun | - | VPN tunnel (NordVPN/ProtonVPN/Surfshark) |
 
 ## Requirements
 
 - **Windows 10/11**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL 2
 - **macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - **Linux**: [Docker Engine](https://docs.docker.com/engine/install/) (or run `curl -fsSL https://get.docker.com | sh`)
-- [NordVPN subscription](https://nordvpn.tomspark.tech/) - **4 extra months FREE + discount!** Fastest speeds based on [RealVPNSpeeds.com](https://realvpnspeeds.com)
+- A VPN subscription from one of:
+  - [**NordVPN**](https://nordvpn.tomspark.tech/) - 4 extra months FREE! Fastest speeds based on [RealVPNSpeeds.com](https://realvpnspeeds.com)
+  - [**ProtonVPN**](https://protonvpn.tomspark.tech/) - 3 months FREE!
+  - [**Surfshark**](https://surfshark.tomspark.tech/) - 3 extra months FREE!
 
 ## Quick Start
 
@@ -80,17 +87,20 @@ curl -fsSL https://raw.githubusercontent.com/loponai/tomsparkprivacyarrsuite/mai
 
 ## What You'll Need
 
-> **⚠️ CRITICAL: NordVPN credentials are NOT your login email/password!**
+> **⚠️ CRITICAL: VPN credentials are NOT your login email/password!**
 >
-> You need special "Service Credentials" from NordVPN's manual setup area.
+> You need special "Service Credentials" from your VPN's manual setup area.
 > Using your regular login WILL NOT WORK and causes AUTH_FAILED errors.
 
 **How to get your Service Credentials:**
 
-1. Go to [NordVPN Manual Setup](https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/)
-2. Click **"Set up NordVPN manually"**
-3. You'll see a **Username** (random letters/numbers) and **Password** (random letters/numbers)
-4. Copy THESE credentials - they look like `qVVEf1PqMaXi` not `yourname@email.com`
+| VPN Provider | Credentials URL |
+|--------------|-----------------|
+| **NordVPN** | [my.nordaccount.com/dashboard/nordvpn/manual-configuration/](https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/) |
+| **ProtonVPN** | [account.proton.me/u/0/vpn/OpenVpnIKEv2](https://account.proton.me/u/0/vpn/OpenVpnIKEv2) |
+| **Surfshark** | [my.surfshark.com/vpn/manual-setup/main/openvpn](https://my.surfshark.com/vpn/manual-setup/main/openvpn) |
+
+The credentials look like random alphanumeric strings (e.g., `qVVEf1PqMaXi`) - NOT `yourname@email.com`
 
 ## Manual Commands
 
@@ -112,9 +122,9 @@ docker ps
 
 ### AUTH_FAILED Error
 **This is the #1 most common error!**
-- You're using your NordVPN email/password instead of Service Credentials
+- You're using your VPN email/password instead of Service Credentials
 - Your login email (`you@gmail.com`) will NOT work
-- Go to: [NordVPN Manual Setup](https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/)
+- Go to your VPN provider's manual setup page (see "What You'll Need" above)
 - Copy the **Service Credentials** (random alphanumeric strings, NOT your email)
 
 ### Port Already in Use
@@ -149,7 +159,7 @@ Username is `admin`. Change the password after logging in.
                       ▼
 ┌─────────────────────────────────────────────────────────┐
 │                 GLUETUN (VPN Tunnel)                    │
-│              NordVPN OpenVPN Connection                 │
+│         NordVPN / ProtonVPN / Surfshark                 │
 │                   Your IP: Hidden                       │
 ├─────────────────────────────────────────────────────────┤
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
@@ -179,9 +189,11 @@ Failure to attribute = DMCA takedown. See [LICENSE](LICENSE) for full terms.
 
 This project is free and open source. If you'd like to support development:
 
-[![NordVPN](https://img.shields.io/badge/Get%20NordVPN-blue?style=for-the-badge&logo=nordvpn)](https://nordvpn.tomspark.tech/)
-
-**[Get NordVPN](https://nordvpn.tomspark.tech/)** - **4 extra months FREE + discount!** The VPN used in this guide. Fastest speeds based on [RealVPNSpeeds.com](https://realvpnspeeds.com) testing.
+| Provider | Deal |
+|----------|------|
+| **[NordVPN](https://nordvpn.tomspark.tech/)** | 4 extra months FREE! Fastest speeds ([RealVPNSpeeds.com](https://realvpnspeeds.com)) |
+| **[ProtonVPN](https://protonvpn.tomspark.tech/)** | 3 months FREE! Swiss privacy |
+| **[Surfshark](https://surfshark.tomspark.tech/)** | 3 extra months FREE! Unlimited devices |
 
 ## Need Help?
 
