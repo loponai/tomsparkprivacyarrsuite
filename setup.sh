@@ -1,0 +1,667 @@
+#!/bin/bash
+# ============================================================
+# PRIVACY BOX - One-Click Media Server Setup
+# Created by Tom Spark | https://youtube.com/@TomSparkReviews
+#
+# LICENSE: MIT with Attribution - You MUST credit Tom Spark
+#          if you share, modify, or create content based on this.
+#
+# Get NordVPN: https://nordvpn.tomspark.tech/
+# GitHub: https://github.com/loponai/tomsparkprivacyarrsuite
+# ============================================================
+
+VERSION="1.0.0"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# --- Colors ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+WHITE='\033[1;37m'
+GRAY='\033[0;37m'
+DARKGRAY='\033[1;30m'
+NC='\033[0m' # No Color
+
+# --- Helper Functions ---
+write_banner() {
+    clear
+    echo ""
+    echo -e "  ${CYAN}=====================================================${NC}"
+    echo -e "       ${WHITE}PRIVACY BOX - Secure Media Server Setup${NC}"
+    echo -e "  ${CYAN}=====================================================${NC}"
+    echo -e "         ${DARKGRAY}Created by ${YELLOW}TOM SPARK${DARKGRAY} | v${VERSION}${NC}"
+    echo -e "      ${DARKGRAY}YouTube: youtube.com/@TomSparkReviews${NC}"
+    echo -e "      ${DARKGRAY}NordVPN: nordvpn.tomspark.tech${NC}"
+    echo -e "  ${CYAN}=====================================================${NC}"
+    echo -e "   ${DARKGRAY}(c) 2026 Tom Spark. Licensed under MIT+Attribution.${NC}"
+    echo -e "   ${RED}Unauthorized copying without credit = DMCA takedown.${NC}"
+    echo -e "  ${CYAN}=====================================================${NC}"
+    echo ""
+}
+
+write_step() {
+    echo -e "  ${YELLOW}[$1]${NC} ${WHITE}$2${NC}"
+}
+
+write_success() {
+    echo -e "  ${GREEN}[OK]${NC} ${WHITE}$1${NC}"
+}
+
+write_error() {
+    echo -e "  ${RED}[X]${NC} ${WHITE}$1${NC}"
+}
+
+write_info() {
+    echo -e "  ${CYAN}[i]${NC} ${GRAY}$1${NC}"
+}
+
+write_warning() {
+    echo -e "  ${YELLOW}[!]${NC} ${WHITE}$1${NC}"
+}
+
+press_enter() {
+    echo ""
+    echo -e "  ${DARKGRAY}Press ENTER to continue...${NC}"
+    read -r
+}
+
+ask_yes_no() {
+    echo ""
+    echo -ne "  ${YELLOW}$1 (Y/N): ${NC}"
+    read -r response
+    [[ "$response" =~ ^[Yy]$ ]]
+}
+
+# --- Pre-Flight Checks ---
+test_docker_installed() {
+    write_step "1" "Checking if Docker is installed..."
+
+    if ! command -v docker &> /dev/null; then
+        write_error "Docker is NOT installed!"
+        echo ""
+        echo -e "  ${WHITE}Please install Docker first:${NC}"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            echo -e "  ${CYAN}https://www.docker.com/products/docker-desktop/${NC}"
+            echo -e "  ${WHITE}Download Docker Desktop for Mac${NC}"
+        else
+            echo -e "  ${CYAN}https://docs.docker.com/engine/install/${NC}"
+            echo -e "  ${WHITE}Or run: curl -fsSL https://get.docker.com | sh${NC}"
+        fi
+        return 1
+    fi
+    write_success "Docker is installed"
+    return 0
+}
+
+test_docker_running() {
+    write_step "2" "Checking if Docker is running..."
+
+    if ! docker info &> /dev/null; then
+        write_error "Docker is NOT running!"
+        echo ""
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            echo -e "  ${WHITE}Please start Docker Desktop and wait for it to be ready.${NC}"
+        else
+            echo -e "  ${WHITE}Please start Docker: ${CYAN}sudo systemctl start docker${NC}"
+        fi
+        return 1
+    fi
+    write_success "Docker is running"
+    return 0
+}
+
+# --- Credential Collection ---
+get_vpn_credentials() {
+    write_banner
+    echo -e "  ${MAGENTA}STEP 1: VPN CREDENTIALS${NC}"
+    echo -e "  ${DARKGRAY}-----------------------${NC}"
+    echo ""
+    write_warning "You need NordVPN 'Service Credentials' (NOT your email/password!)"
+    echo ""
+    echo -e "  ${WHITE}How to get them:${NC}"
+    echo -e "  ${GRAY}1. Go to: ${CYAN}https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/${NC}"
+    echo -e "  ${GRAY}2. Click 'Set up NordVPN manually'${NC}"
+    echo -e "  ${GRAY}3. Copy the Username and Password shown there${NC}"
+    echo ""
+
+    if ask_yes_no "Open NordVPN dashboard in your browser now?"; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            open "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/"
+        else
+            xdg-open "https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/" 2>/dev/null || \
+            echo -e "  ${CYAN}https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/${NC}"
+        fi
+        echo ""
+        write_info "Browser opened. Copy your credentials, then come back here."
+        press_enter
+    fi
+
+    echo ""
+    echo -ne "  ${YELLOW}Enter your Service Username: ${NC}"
+    read -r VPN_USERNAME
+
+    echo -ne "  ${YELLOW}Enter your Service Password: ${NC}"
+    read -r VPN_PASSWORD
+
+    if [[ -z "$VPN_USERNAME" || -z "$VPN_PASSWORD" ]]; then
+        write_error "Username and password cannot be empty!"
+        return 1
+    fi
+
+    return 0
+}
+
+get_server_country() {
+    write_banner
+    echo -e "  ${MAGENTA}STEP 2: SERVER LOCATION${NC}"
+    echo -e "  ${DARKGRAY}-----------------------${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Pick the closest country to you for best speeds!${NC}"
+    echo -e "  ${GRAY}(NordVPN's no-logs policy protects you on ANY server)${NC}"
+    echo ""
+    echo -e "  ${WHITE}Popular choices:${NC}"
+    echo -e "    ${GRAY}1. United States${NC}"
+    echo -e "    ${GRAY}2. United Kingdom${NC}"
+    echo -e "    ${GRAY}3. Canada${NC}"
+    echo -e "    ${GRAY}4. Netherlands${NC}"
+    echo -e "    ${GRAY}5. Custom${NC}"
+    echo ""
+    echo -ne "  ${YELLOW}Select (1-5) [default: 1]: ${NC}"
+    read -r choice
+
+    case "$choice" in
+        2) SERVER_COUNTRY="United Kingdom" ;;
+        3) SERVER_COUNTRY="Canada" ;;
+        4) SERVER_COUNTRY="Netherlands" ;;
+        5)
+            echo -ne "  ${YELLOW}Enter country name (capitalize first letter): ${NC}"
+            read -r SERVER_COUNTRY
+            ;;
+        *) SERVER_COUNTRY="United States" ;;
+    esac
+}
+
+get_timezone() {
+    write_banner
+    echo -e "  ${MAGENTA}STEP 3: TIMEZONE${NC}"
+    echo -e "  ${DARKGRAY}----------------${NC}"
+    echo ""
+    echo -e "  ${WHITE}Common timezones:${NC}"
+    echo -e "    ${GRAY}1. America/Los_Angeles (Pacific)${NC}"
+    echo -e "    ${GRAY}2. America/Denver (Mountain)${NC}"
+    echo -e "    ${GRAY}3. America/Chicago (Central)${NC}"
+    echo -e "    ${GRAY}4. America/New_York (Eastern)${NC}"
+    echo -e "    ${GRAY}5. Europe/London${NC}"
+    echo -e "    ${GRAY}6. Europe/Berlin${NC}"
+    echo -e "    ${GRAY}7. Custom${NC}"
+    echo ""
+    echo -ne "  ${YELLOW}Select (1-7) [default: 1]: ${NC}"
+    read -r choice
+
+    case "$choice" in
+        2) TIMEZONE="America/Denver" ;;
+        3) TIMEZONE="America/Chicago" ;;
+        4) TIMEZONE="America/New_York" ;;
+        5) TIMEZONE="Europe/London" ;;
+        6) TIMEZONE="Europe/Berlin" ;;
+        7)
+            echo -ne "  ${YELLOW}Enter timezone (e.g., Australia/Sydney): ${NC}"
+            read -r TIMEZONE
+            ;;
+        *) TIMEZONE="America/Los_Angeles" ;;
+    esac
+}
+
+# --- File Generation ---
+create_env_file() {
+    cat > "$SCRIPT_DIR/.env" << EOF
+# ==========================================
+# TOM SPARK'S PRIVACY BOX CONFIG
+# Created by Tom Spark | youtube.com/@TomSparkReviews
+# Get NordVPN: nordvpn.tomspark.tech
+# ==========================================
+
+# --- VPN CREDENTIALS ---
+# These are NordVPN Service Credentials (NOT email/password)
+VPN_TYPE=nordvpn
+VPN_USER="${VPN_USERNAME}"
+VPN_PASSWORD="${VPN_PASSWORD}"
+
+# --- SERVER LOCATION ---
+SERVER_COUNTRIES=${SERVER_COUNTRY}
+
+# --- SYSTEM SETTINGS ---
+TZ=${TIMEZONE}
+ROOT_DIR=.
+EOF
+}
+
+# --- Docker Operations ---
+start_privacy_box() {
+    write_banner
+    echo -e "  ${MAGENTA}LAUNCHING PRIVACY BOX${NC}"
+    echo -e "  ${DARKGRAY}---------------------${NC}"
+    echo ""
+
+    cd "$SCRIPT_DIR" || exit 1
+
+    write_step "1" "Pulling Docker images (this may take a few minutes on first run)..."
+    echo ""
+    docker compose pull 2>&1 | sed 's/^/      /'
+
+    echo ""
+    write_step "2" "Starting containers..."
+    echo ""
+    docker compose up -d 2>&1 | sed 's/^/      /'
+
+    echo ""
+    write_step "3" "Waiting for VPN to connect..."
+
+    max_attempts=30
+    attempt=0
+    connected=false
+
+    while [[ $attempt -lt $max_attempts ]] && [[ "$connected" == "false" ]]; do
+        sleep 2
+        ((attempt++))
+
+        health=$(docker inspect --format='{{.State.Health.Status}}' gluetun 2>/dev/null)
+        if [[ "$health" == "healthy" ]]; then
+            connected=true
+        fi
+
+        echo -ne "${YELLOW}.${NC}"
+    done
+
+    echo ""
+    echo ""
+
+    if [[ "$connected" == "true" ]]; then
+        ip=$(docker logs gluetun 2>&1 | grep "Public IP address is" | tail -1 | sed 's/.*Public IP address is //' | cut -d' ' -f1)
+        if [[ -n "$ip" ]]; then
+            write_success "VPN Connected! Your IP: $ip"
+        else
+            write_success "VPN Connected!"
+        fi
+        return 0
+    else
+        write_error "VPN connection timed out. Checking logs..."
+        echo ""
+        docker logs gluetun 2>&1 | grep -E "AUTH_FAILED|error|Error" | tail -5 | sed 's/^/      /'
+        return 1
+    fi
+}
+
+# --- Setup Guide ---
+show_setup_guide() {
+    # --- qBittorrent Setup ---
+    write_banner
+    echo -e "  ${MAGENTA}SETUP GUIDE: qBittorrent (Step 1 of 4)${NC}"
+    echo -e "  ${DARKGRAY}--------------------------------------${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Press ENTER to open qBittorrent in your browser...${NC}"
+    read -r
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "http://localhost:8080"
+    else
+        xdg-open "http://localhost:8080" 2>/dev/null || echo -e "  ${CYAN}Open: http://localhost:8080${NC}"
+    fi
+    echo ""
+    echo -e "  ${YELLOW}Login:${NC}"
+    echo -e "    ${WHITE}Username: ${CYAN}admin${NC}"
+    echo -e "    ${WHITE}Password: ${CYAN}(check the command below)${NC}"
+    echo ""
+    echo -e "  ${WHITE} IMPORTANT ${NC}"
+    echo -e "  ${WHITE}qBittorrent generates a random password on first run.${NC}"
+    echo -e "  ${WHITE}Open a NEW terminal and run this command to find it:${NC}"
+    echo ""
+    echo -e "    ${CYAN}docker logs qbittorrent 2>&1 | grep password${NC}"
+    echo ""
+    echo -e "  ${GRAY}Copy the password shown, then log in and change it.${NC}"
+    echo ""
+    echo -e "  ${WHITE} VPN VERIFICATION ${NC}"
+    echo -e "  ${WHITE}Go to: Tools > Options > Advanced${NC}"
+    echo -e "  ${WHITE}Look for 'Network Interface' - it should say: ${GREEN}tun0${NC}"
+    echo -e "  ${GRAY}This proves your traffic is going through the VPN tunnel!${NC}"
+
+    press_enter
+
+    # --- Prowlarr Setup ---
+    write_banner
+    echo -e "  ${MAGENTA}SETUP GUIDE: Prowlarr (Step 2 of 4)${NC}"
+    echo -e "  ${DARKGRAY}-----------------------------------${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Press ENTER to open Prowlarr in your browser...${NC}"
+    read -r
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "http://localhost:8181"
+    else
+        xdg-open "http://localhost:8181" 2>/dev/null || echo -e "  ${CYAN}Open: http://localhost:8181${NC}"
+    fi
+    echo ""
+    echo -e "  ${WHITE} IMPORTANT ${NC}"
+    echo ""
+    echo -e "  ${WHITE}1. Create your admin account when prompted${NC}"
+    echo ""
+    echo -e "  ${YELLOW}2. Add Indexers:${NC}"
+    echo -e "     ${WHITE}- Click 'Indexers' in the sidebar${NC}"
+    echo -e "     ${WHITE}- Click '+ Add Indexer'${NC}"
+    echo -e "     ${RED}- CRITICAL: Change 'Language' filter from 'en-US' to 'Any'${NC}"
+    echo -e "       ${GRAY}(Otherwise you'll only see ~6 indexers instead of 400+)${NC}"
+    echo -e "     ${WHITE}- Add: 1337x, TorrentGalaxy, or your preferred sites${NC}"
+    echo ""
+    echo -e "  ${GRAY}3. We'll connect Prowlarr to Sonarr/Radarr in the next steps${NC}"
+
+    press_enter
+
+    # --- Sonarr Setup ---
+    write_banner
+    echo -e "  ${MAGENTA}SETUP GUIDE: Sonarr (Step 3 of 4)${NC}"
+    echo -e "  ${DARKGRAY}---------------------------------${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Press ENTER to open Sonarr in your browser...${NC}"
+    read -r
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "http://localhost:8989"
+    else
+        xdg-open "http://localhost:8989" 2>/dev/null || echo -e "  ${CYAN}Open: http://localhost:8989${NC}"
+    fi
+    echo ""
+    echo -e "  ${WHITE}1. Create your admin account when prompted${NC}"
+    echo ""
+    echo -e "  ${YELLOW}2. Add Root Folder (where TV shows are saved):${NC}"
+    echo -e "     ${WHITE}- Go to: Settings > Media Management${NC}"
+    echo -e "     ${WHITE}- Scroll down and click 'Add Root Folder'${NC}"
+    echo -e "     ${WHITE}- Enter path: ${CYAN}/data/media/tv${NC}"
+    echo -e "     ${WHITE}- Click 'OK'${NC}"
+    echo ""
+    echo -e "  ${YELLOW}3. Add Download Client:${NC}"
+    echo -e "     ${WHITE}- Go to: Settings > Download Clients${NC}"
+    echo -e "     ${WHITE}- Click '+' and select 'qBittorrent'${NC}"
+    echo -e "     ${WHITE}- Host: ${CYAN}localhost${NC}"
+    echo -e "     ${WHITE}- Port: ${CYAN}8080${NC}"
+    echo -e "     ${WHITE}- Username: ${CYAN}admin${NC}"
+    echo -e "     ${WHITE}- Password: ${CYAN}(your qBittorrent password)${NC}"
+    echo -e "     ${WHITE}- Click 'Test' then 'Save'${NC}"
+    echo ""
+    echo -e "  ${YELLOW}4. Copy your API Key:${NC}"
+    echo -e "     ${WHITE}- Go to: Settings > General${NC}"
+    echo -e "     ${WHITE}- Copy the 'API Key' (you'll need this for Prowlarr)${NC}"
+
+    press_enter
+
+    # --- Radarr Setup ---
+    write_banner
+    echo -e "  ${MAGENTA}SETUP GUIDE: Radarr (Step 4 of 4)${NC}"
+    echo -e "  ${DARKGRAY}---------------------------------${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Press ENTER to open Radarr in your browser...${NC}"
+    read -r
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "http://localhost:7878"
+    else
+        xdg-open "http://localhost:7878" 2>/dev/null || echo -e "  ${CYAN}Open: http://localhost:7878${NC}"
+    fi
+    echo ""
+    echo -e "  ${WHITE}1. Create your admin account when prompted${NC}"
+    echo ""
+    echo -e "  ${YELLOW}2. Add Root Folder (where movies are saved):${NC}"
+    echo -e "     ${WHITE}- Go to: Settings > Media Management${NC}"
+    echo -e "     ${WHITE}- Scroll down and click 'Add Root Folder'${NC}"
+    echo -e "     ${WHITE}- Enter path: ${CYAN}/data/media/movies${NC}"
+    echo -e "     ${WHITE}- Click 'OK'${NC}"
+    echo ""
+    echo -e "  ${YELLOW}3. Add Download Client (same as Sonarr):${NC}"
+    echo -e "     ${WHITE}- Go to: Settings > Download Clients${NC}"
+    echo -e "     ${WHITE}- Click '+' and select 'qBittorrent'${NC}"
+    echo -e "     ${WHITE}- Host: ${CYAN}localhost${NC}"
+    echo -e "     ${WHITE}- Port: ${CYAN}8080${NC}"
+    echo -e "     ${WHITE}- Username/Password: same as before${NC}"
+    echo -e "     ${WHITE}- Click 'Test' then 'Save'${NC}"
+    echo ""
+    echo -e "  ${YELLOW}4. Copy your API Key:${NC}"
+    echo -e "     ${WHITE}- Go to: Settings > General${NC}"
+    echo -e "     ${WHITE}- Copy the 'API Key' (you'll need this for Prowlarr)${NC}"
+
+    press_enter
+
+    # --- Connect Prowlarr ---
+    write_banner
+    echo -e "  ${MAGENTA}FINAL STEP: Connect Prowlarr to Apps${NC}"
+    echo -e "  ${DARKGRAY}------------------------------------${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Press ENTER to open Prowlarr in your browser...${NC}"
+    read -r
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "http://localhost:8181"
+    else
+        xdg-open "http://localhost:8181" 2>/dev/null || echo -e "  ${CYAN}Open: http://localhost:8181${NC}"
+    fi
+    echo ""
+    echo -e "  ${YELLOW}Go to: Settings > Apps${NC}"
+    echo ""
+    echo -e "  ${WHITE}Add Sonarr:${NC}"
+    echo -e "    ${GRAY}- Click '+' and select 'Sonarr'${NC}"
+    echo -e "    ${GRAY}- Prowlarr Server: ${CYAN}http://localhost:9696${NC}"
+    echo -e "    ${GRAY}- Sonarr Server: ${CYAN}http://localhost:8989${NC}"
+    echo -e "    ${GRAY}- API Key: ${CYAN}(paste the Sonarr API key you copied)${NC}"
+    echo -e "    ${GRAY}- Click 'Test' then 'Save'${NC}"
+    echo ""
+    echo -e "  ${WHITE}Add Radarr:${NC}"
+    echo -e "    ${GRAY}- Click '+' and select 'Radarr'${NC}"
+    echo -e "    ${GRAY}- Prowlarr Server: ${CYAN}http://localhost:9696${NC}"
+    echo -e "    ${GRAY}- Radarr Server: ${CYAN}http://localhost:7878${NC}"
+    echo -e "    ${GRAY}- API Key: ${CYAN}(paste the Radarr API key you copied)${NC}"
+    echo -e "    ${GRAY}- Click 'Test' then 'Save'${NC}"
+
+    press_enter
+
+    # --- Media Player Setup (Optional) ---
+    write_banner
+    echo -e "  ${MAGENTA}OPTIONAL: Watch Your Media on Other Devices${NC}"
+    echo -e "  ${DARKGRAY}--------------------------------------------${NC}"
+    echo ""
+    echo -e "  ${WHITE}Want to watch your downloaded media on a TV, phone, or tablet?${NC}"
+    echo -e "  ${GRAY}Install Jellyfin (free) or Emby on this computer, then connect from any device!${NC}"
+    echo ""
+    echo -e "  ${WHITE} STEP 1: Install a Media Server ${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Choose ONE:${NC}"
+    echo -e "    ${CYAN}Jellyfin (FREE): https://jellyfin.org/downloads${NC}"
+    echo -e "    ${CYAN}Emby (Free/Paid): https://emby.media/download.html${NC}"
+    echo ""
+    echo -e "  ${WHITE}During setup, add your media library folder:${NC}"
+    echo -e "    ${GRAY}TV Shows:  ${CYAN}${SCRIPT_DIR}/media/tv${NC}"
+    echo -e "    ${GRAY}Movies:    ${CYAN}${SCRIPT_DIR}/media/movies${NC}"
+    echo ""
+    echo -e "  ${WHITE} STEP 2: Connect from Other Devices ${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Same Network (Home WiFi):${NC}"
+    echo -e "    ${WHITE}1. Find this computer's IP: ${CYAN}ip addr${NC} or ${CYAN}ifconfig${NC}"
+    echo -e "       ${GRAY}Look for your local IP (e.g., 192.168.1.100)${NC}"
+    echo -e "    ${WHITE}2. On your other device, open the Jellyfin/Emby app${NC}"
+    echo -e "    ${WHITE}3. Enter: ${CYAN}http://YOUR-IP:8096${NC} (Jellyfin) or ${CYAN}:8920${NC} (Emby)"
+    echo ""
+    echo -e "  ${WHITE} CAN'T CONNECT? ${NC}"
+    echo ""
+    echo -e "  ${YELLOW}If devices on your network can't reach the server:${NC}"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo -e "    ${WHITE}macOS: System Preferences > Security & Privacy > Firewall${NC}"
+        echo -e "    ${WHITE}Add Jellyfin/Emby to allowed apps${NC}"
+    else
+        echo -e "    ${WHITE}Linux: Allow the port through your firewall:${NC}"
+        echo -e "    ${CYAN}sudo ufw allow 8096/tcp${NC}  (Jellyfin)"
+        echo -e "    ${CYAN}sudo ufw allow 8920/tcp${NC}  (Emby)"
+    fi
+
+    press_enter
+
+    # --- Remote Access Setup (Optional) ---
+    write_banner
+    echo -e "  ${MAGENTA}OPTIONAL: Watch Your Media From Anywhere${NC}"
+    echo -e "  ${DARKGRAY}-----------------------------------------${NC}"
+    echo ""
+    echo -e "  ${WHITE}Want to access your media outside your home (hotel, work, etc.)?${NC}"
+    echo -e "  ${GRAY}Use a secure mesh network - NO port forwarding needed!${NC}"
+    echo ""
+    echo -e "  ${WHITE} OPTION 1: NordVPN Meshnet (You already have NordVPN!) ${NC}"
+    echo ""
+    echo -e "  ${YELLOW}On this computer:${NC}"
+    echo -e "    ${WHITE}1. Install NordVPN app: ${CYAN}https://nordvpn.com/download/${NC}"
+    echo -e "    ${WHITE}2. Sign in and go to 'Meshnet' in the left sidebar${NC}"
+    echo -e "    ${WHITE}3. Turn ON Meshnet${NC}"
+    echo -e "    ${WHITE}4. Note your device's Meshnet name (e.g., my-pc.nord)${NC}"
+    echo ""
+    echo -e "  ${YELLOW}On your phone/laptop (when away from home):${NC}"
+    echo -e "    ${WHITE}1. Install NordVPN app and sign in with same account${NC}"
+    echo -e "    ${WHITE}2. Go to Meshnet and turn it ON${NC}"
+    echo -e "    ${WHITE}3. Your PC will appear under 'Your devices'${NC}"
+    echo -e "    ${WHITE}4. Open Jellyfin/Emby app and connect to:${NC}"
+    echo -e "       ${CYAN}http://your-pc-name.nord:8096${NC} ${GRAY}(Jellyfin)${NC}"
+    echo -e "       ${CYAN}http://your-pc-name.nord:8920${NC} ${GRAY}(Emby)${NC}"
+    echo ""
+    echo -e "  ${WHITE} OPTION 2: Tailscale (Free alternative) ${NC}"
+    echo ""
+    echo -e "  ${YELLOW}On this computer:${NC}"
+    echo -e "    ${WHITE}1. Download Tailscale: ${CYAN}https://tailscale.com/download${NC}"
+    echo -e "    ${WHITE}2. Install and sign in (Google/Microsoft/etc.)${NC}"
+    echo -e "    ${WHITE}3. Note your Tailscale IP (starts with 100.x.x.x)${NC}"
+    echo ""
+    echo -e "  ${YELLOW}On your phone/laptop:${NC}"
+    echo -e "    ${WHITE}1. Install Tailscale app and sign in with same account${NC}"
+    echo -e "    ${WHITE}2. Open Jellyfin/Emby app and connect to:${NC}"
+    echo -e "       ${CYAN}http://100.x.x.x:8096${NC} ${GRAY}(use your actual Tailscale IP)${NC}"
+    echo ""
+    echo -e "  ${WHITE} WHY THIS IS SAFE ${NC}"
+    echo ""
+    echo -e "  ${GRAY}Both options create an encrypted tunnel directly between your devices.${NC}"
+    echo -e "  ${GRAY}Nothing is exposed to the internet - no hackers can find your server!${NC}"
+    echo -e "  ${GRAY}This does NOT interfere with your torrent VPN (that runs in Docker).${NC}"
+
+    press_enter
+
+    # --- Complete ---
+    write_banner
+    echo ""
+    echo -e "  ${GREEN}=============================================${NC}"
+    echo -e "       ${WHITE}PRIVACY BOX SETUP COMPLETE!${NC}"
+    echo -e "  ${GREEN}=============================================${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Your Services:${NC}"
+    echo -e "    ${WHITE}qBittorrent:  http://localhost:8080${NC}"
+    echo -e "    ${WHITE}Prowlarr:     http://localhost:8181${NC}"
+    echo -e "    ${WHITE}Sonarr:       http://localhost:8989${NC}"
+    echo -e "    ${WHITE}Radarr:       http://localhost:7878${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Your media folder:${NC}"
+    echo -e "    ${GRAY}${SCRIPT_DIR}/media/${NC}"
+    echo ""
+    echo -e "  ${GREEN}Your traffic is now secured through the VPN!${NC}"
+    echo ""
+    echo -e "  ${DARKGRAY}=============================================${NC}"
+    echo -e "  ${YELLOW}IS IT RUNNING?${NC}"
+    echo -e "  ${DARKGRAY}=============================================${NC}"
+    echo -e "  ${WHITE}Your Privacy Box is currently ${GREEN}RUNNING${WHITE}!${NC}"
+    echo -e "  ${GRAY}It will keep running in the background.${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Useful Commands (run from this folder):${NC}"
+    echo -e "    ${GRAY}Start:   docker compose up -d${NC}"
+    echo -e "    ${GRAY}Stop:    docker compose down${NC}"
+    echo -e "    ${GRAY}Restart: docker compose restart${NC}"
+    echo -e "    ${GRAY}Status:  docker ps${NC}"
+    echo ""
+    echo -e "  ${CYAN}=============================================${NC}"
+    echo -e "  ${YELLOW}Created by TOM SPARK${NC}"
+    echo -e "  ${WHITE}Subscribe: youtube.com/@TomSparkReviews${NC}"
+    echo -e "  ${WHITE}Get NordVPN: nordvpn.tomspark.tech${NC}"
+    echo -e "  ${CYAN}=============================================${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Questions? Join the Discord!${NC}"
+    echo -e "  ${CYAN}https://discord.gg/uPdRcKxEVS${NC}"
+    echo ""
+}
+
+# --- Main Execution ---
+main() {
+    write_banner
+
+    # Pre-flight checks
+    if ! test_docker_installed; then
+        press_enter
+        exit 1
+    fi
+
+    if ! test_docker_running; then
+        press_enter
+        exit 1
+    fi
+
+    write_success "Pre-flight checks passed!"
+    press_enter
+
+    # Collect configuration
+    if ! get_vpn_credentials; then
+        exit 1
+    fi
+
+    get_server_country
+    get_timezone
+
+    # Confirmation
+    write_banner
+    echo -e "  ${MAGENTA}CONFIGURATION SUMMARY${NC}"
+    echo -e "  ${DARKGRAY}---------------------${NC}"
+    echo ""
+    echo -e "  ${WHITE}Install Path:    ${SCRIPT_DIR}${NC}"
+    echo -e "  ${WHITE}VPN Username:    ${VPN_USERNAME}${NC}"
+    echo -e "  ${WHITE}VPN Password:    $(printf '*%.0s' $(seq 1 ${#VPN_PASSWORD}))${NC}"
+    echo -e "  ${WHITE}Server Country:  ${SERVER_COUNTRY}${NC}"
+    echo -e "  ${WHITE}Timezone:        ${TIMEZONE}${NC}"
+    echo ""
+
+    if ! ask_yes_no "Proceed with installation?"; then
+        echo ""
+        write_info "Installation cancelled."
+        exit 0
+    fi
+
+    # Create directory structure
+    write_banner
+    echo -e "  ${MAGENTA}CREATING FILES${NC}"
+    echo -e "  ${DARKGRAY}--------------${NC}"
+    echo ""
+
+    write_step "1" "Creating directories..."
+    mkdir -p "$SCRIPT_DIR/config"
+    mkdir -p "$SCRIPT_DIR/media/downloads"
+    mkdir -p "$SCRIPT_DIR/media/tv"
+    mkdir -p "$SCRIPT_DIR/media/movies"
+    write_success "Directories created"
+
+    write_step "2" "Generating .env file..."
+    create_env_file
+    write_success ".env file created"
+
+    press_enter
+
+    # Launch
+    if start_privacy_box; then
+        press_enter
+        show_setup_guide
+    else
+        echo ""
+        write_error "Setup failed. Please check your VPN credentials."
+        echo ""
+        echo -e "  ${YELLOW}Common fixes:${NC}"
+        echo -e "    ${WHITE}1. Make sure you're using 'Service Credentials' from NordVPN${NC}"
+        echo -e "    ${WHITE}2. NOT your email/password login${NC}"
+        echo -e "    ${WHITE}3. Try regenerating the credentials on NordVPN's website${NC}"
+        echo ""
+        echo -e "  ${GRAY}To retry, run this script again.${NC}"
+    fi
+}
+
+# Run
+main

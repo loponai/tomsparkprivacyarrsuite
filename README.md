@@ -1,14 +1,15 @@
 # Privacy Box
 
-**One-click secure media server setup for Windows.**
+**One-click secure media server setup for Windows, Mac, and Linux.**
 
-A PowerShell script that automatically deploys a complete *arr stack (Sonarr, Radarr, Prowlarr, qBittorrent) routed through a VPN tunnel using Docker.
+A setup script that automatically deploys a complete *arr stack (Sonarr, Radarr, Prowlarr, qBittorrent) routed through a VPN tunnel using Docker.
 
 ## Features
 
 - **One-click setup** - No manual file editing required
+- **Cross-platform** - Works on Windows, macOS, and Linux
 - **VPN Kill Switch** - All traffic routed through Gluetun (NordVPN)
-- **Pre-configured ports** - Avoids common Windows/Hyper-V port conflicts
+- **Pre-configured ports** - Avoids common port conflicts
 - **Guided configuration** - Step-by-step instructions for connecting all apps
 - **Safe defaults** - Credentials properly quoted, secure settings enabled
 
@@ -24,8 +25,9 @@ A PowerShell script that automatically deploys a complete *arr stack (Sonarr, Ra
 
 ## Requirements
 
-- Windows 10/11
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL 2
+- **Windows 10/11**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL 2
+- **macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- **Linux**: [Docker Engine](https://docs.docker.com/engine/install/) (or run `curl -fsSL https://get.docker.com | sh`)
 - [NordVPN subscription](https://nordvpn.tomspark.tech/) - Fastest speeds based on [RealVPNSpeeds.com](https://realvpnspeeds.com)
 
 ## Quick Start
@@ -35,7 +37,21 @@ A PowerShell script that automatically deploys a complete *arr stack (Sonarr, Ra
    ![How to download](images/download-instructions.png)
 
 2. **Extract** the ZIP file to your Desktop
-3. **Double-click** `Setup-PrivacyBox.bat`
+
+3. **Run the setup script:**
+
+   **Windows:**
+   ```
+   Double-click Setup-PrivacyBox.bat
+   ```
+
+   **Mac/Linux:**
+   ```bash
+   cd ~/Desktop/PrivacyServer
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+
 4. **Follow the prompts** - the script will guide you through everything
 
 ## What You'll Need
@@ -78,8 +94,9 @@ docker ps
 - Copy the **Service Credentials** (random alphanumeric strings, NOT your email)
 
 ### Port Already in Use
-- Windows Hyper-V reserves random ports in the 9000-9999 range
-- This script uses port 8181 for Prowlarr to avoid conflicts
+- **Windows:** Hyper-V reserves random ports in the 9000-9999 range
+- **All platforms:** This script uses port 8181 for Prowlarr to avoid conflicts
+- Check what's using a port: `netstat -an | grep 8080` (Mac/Linux) or `netstat -an | findstr 8080` (Windows)
 
 ### Prowlarr Shows Few Indexers
 - Change the Language filter from "en-US" to "Any"
@@ -90,7 +107,11 @@ qBittorrent generates a **random password** on first run (not admin/adminadmin a
 
 Find it with:
 ```bash
+# Windows
 docker logs qbittorrent 2>&1 | findstr password
+
+# Mac/Linux
+docker logs qbittorrent 2>&1 | grep password
 ```
 Username is `admin`. Change the password after logging in.
 
