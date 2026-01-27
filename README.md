@@ -40,11 +40,17 @@ A PowerShell script that automatically deploys a complete *arr stack (Sonarr, Ra
 
 ## What You'll Need
 
-Before running the script, get your **NordVPN Service Credentials**:
+> **⚠️ CRITICAL: NordVPN credentials are NOT your login email/password!**
+>
+> You need special "Service Credentials" from NordVPN's manual setup area.
+> Using your regular login WILL NOT WORK and causes AUTH_FAILED errors.
+
+**How to get your Service Credentials:**
 
 1. Go to [NordVPN Manual Setup](https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/)
-2. Click "Set up NordVPN manually"
-3. Copy the **Username** and **Password** shown (NOT your email login!)
+2. Click **"Set up NordVPN manually"**
+3. You'll see a **Username** (random letters/numbers) and **Password** (random letters/numbers)
+4. Copy THESE credentials - they look like `qVVEf1PqMaXi` not `yourname@email.com`
 
 ## Manual Commands
 
@@ -65,8 +71,11 @@ docker ps
 ## Troubleshooting
 
 ### AUTH_FAILED Error
+**This is the #1 most common error!**
 - You're using your NordVPN email/password instead of Service Credentials
-- Go to NordVPN dashboard → Manual Setup → Copy the credentials there
+- Your login email (`you@gmail.com`) will NOT work
+- Go to: [NordVPN Manual Setup](https://my.nordaccount.com/dashboard/nordvpn/manual-configuration/)
+- Copy the **Service Credentials** (random alphanumeric strings, NOT your email)
 
 ### Port Already in Use
 - Windows Hyper-V reserves random ports in the 9000-9999 range
