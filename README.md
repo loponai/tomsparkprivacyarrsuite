@@ -4,6 +4,22 @@
 
 A setup script that automatically deploys a complete *arr stack (Sonarr, Radarr, Prowlarr, qBittorrent) routed through a VPN tunnel using Docker.
 
+---
+
+## Download & Install
+
+| Platform | Instructions |
+|----------|--------------|
+| **Windows** | Download ZIP → Extract → Double-click **`Setup-PrivacyBox.bat`** |
+| **macOS** | Download ZIP → Extract → Open Terminal → `chmod +x setup.sh && ./setup.sh` |
+| **Linux** | Download ZIP → Extract → Open Terminal → `chmod +x setup.sh && ./setup.sh` |
+
+[![Download ZIP](https://img.shields.io/badge/Download-ZIP-blue?style=for-the-badge&logo=github)](https://github.com/loponai/tomsparkprivacyarrsuite/archive/refs/heads/main.zip)
+
+> **Need NordVPN?** [Get 4 extra months FREE + discount!](https://nordvpn.tomspark.tech/)
+
+---
+
 ## Features
 
 - **One-click setup** - No manual file editing required
