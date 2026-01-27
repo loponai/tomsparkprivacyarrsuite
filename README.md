@@ -138,6 +138,12 @@ This project is free and open source. If you'd like to support development:
 
 **[Get NordVPN](https://nordvpn.tomspark.tech/)** - The VPN used in this guide. Fastest speeds based on [RealVPNSpeeds.com](https://realvpnspeeds.com) testing.
 
+## Need Help?
+
+[![Discord](https://img.shields.io/badge/Join%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/uPdRcKxEVS)
+
+Questions? Join the **[Tom Spark Discord](https://discord.gg/uPdRcKxEVS)** for support!
+
 ## Credits
 
 - [Gluetun](https://github.com/qdm12/gluetun) - VPN client

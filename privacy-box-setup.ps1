@@ -588,19 +588,30 @@ function Show-SetupGuide {
     Write-Host "    Sonarr:       http://localhost:8989" -ForegroundColor White
     Write-Host "    Radarr:       http://localhost:7878" -ForegroundColor White
     Write-Host ""
-    Write-Host "  Useful Commands:" -ForegroundColor Yellow
+    Write-Host "  Your traffic is now secured through the VPN!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  =============================================" -ForegroundColor DarkGray
+    Write-Host "  IS IT RUNNING?" -ForegroundColor Yellow
+    Write-Host "  =============================================" -ForegroundColor DarkGray
+    Write-Host "  Your Privacy Box is currently " -ForegroundColor White -NoNewline
+    Write-Host "RUNNING" -ForegroundColor Green -NoNewline
+    Write-Host "!" -ForegroundColor White
+    Write-Host "  It will keep running in the background." -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  Useful Commands (run from PrivacyServer folder):" -ForegroundColor Yellow
     Write-Host "    Start:   docker compose up -d" -ForegroundColor Gray
     Write-Host "    Stop:    docker compose down" -ForegroundColor Gray
-    Write-Host "    Logs:    docker logs gluetun" -ForegroundColor Gray
+    Write-Host "    Restart: docker compose restart" -ForegroundColor Gray
     Write-Host "    Status:  docker ps" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  Your traffic is now secured through the VPN!" -ForegroundColor Green
     Write-Host ""
     Write-Host "  =============================================" -ForegroundColor Cyan
     Write-Host "  Created by TOM SPARK" -ForegroundColor Yellow
     Write-Host "  Subscribe: youtube.com/@TomSparkReviews" -ForegroundColor White
     Write-Host "  Get NordVPN: nordvpn.tomspark.tech" -ForegroundColor White
     Write-Host "  =============================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Questions? Join the Discord!" -ForegroundColor Yellow
+    Write-Host "  https://discord.gg/uPdRcKxEVS" -ForegroundColor Cyan
     Write-Host ""
 }
 
