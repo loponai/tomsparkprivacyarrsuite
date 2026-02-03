@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # PRIVACY BOX - One-Click Media Server Setup
 # Created by Tom Spark | https://youtube.com/@TomSparkReviews
 #
@@ -105,7 +105,7 @@ function Show-BeginnerTip {
     Write-Host ""
     Write-Host "  +----------------------------------------------------+" -ForegroundColor Cyan
     Write-Host "  |  " -ForegroundColor Cyan -NoNewline
-    Write-Host "💡 $Title" -ForegroundColor White
+    Write-Host "[TIP] $Title" -ForegroundColor White
     Write-Host "  +----------------------------------------------------+" -ForegroundColor Cyan
     $Body -split "`n" | ForEach-Object {
         Write-Host "  |  " -ForegroundColor Cyan -NoNewline
