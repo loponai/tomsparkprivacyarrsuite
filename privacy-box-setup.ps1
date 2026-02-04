@@ -723,6 +723,11 @@ function New-DockerComposeFile {
 #   Surfshark: surfshark.tomspark.tech (3 extra months FREE!)
 # ==========================================
 
+networks:
+  internal:
+    # Internal network for FlareSolverr to communicate with VPN-tunneled containers
+    driver: bridge
+
 services:
   gluetun:
     image: qmcgaw/gluetun
@@ -750,6 +755,9 @@ services:
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
     volumes:
       - ${ROOT_DIR}/config/gluetun:/gluetun
+    networks:
+      - default
+      - internal
     restart: always
 
   qbittorrent:
@@ -893,7 +901,9 @@ services:
       - LOG_LEVEL=info
       - TZ=${TZ}
     ports:
-      - 8191:8191   # FlareSolverr
+      - 8191:8191   # FlareSolverr (for debugging/testing)
+    networks:
+      - internal
     restart: always
 '@
 
