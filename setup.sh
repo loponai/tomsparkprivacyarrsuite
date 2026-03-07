@@ -6,10 +6,6 @@
 # LICENSE: MIT with Attribution - You MUST credit Tom Spark
 #          if you share, modify, or create content based on this.
 #
-# VPN Options:
-#   NordVPN:   nordvpn.tomspark.tech   (4 extra months FREE!)
-#   ProtonVPN: protonvpn.tomspark.tech (3 months FREE!)
-#   Surfshark: surfshark.tomspark.tech (3 extra months FREE!)
 # GitHub: https://github.com/loponai/tomsparkprivacyarrsuite
 # ============================================================
 
@@ -43,7 +39,6 @@ write_banner() {
     echo -e "  ${CYAN}=====================================================${NC}"
     echo -e "         ${DARKGRAY}Created by ${YELLOW}TOM SPARK${DARKGRAY} | v${VERSION}${NC}"
     echo -e "      ${DARKGRAY}YouTube: youtube.com/@TomSparkReviews${NC}"
-    echo -e "      ${DARKGRAY}VPN Deals: ${CYAN}nordvpn.tomspark.tech${NC} | ${CYAN}protonvpn.tomspark.tech${NC} | ${CYAN}surfshark.tomspark.tech${NC}"
     echo -e "  ${CYAN}=====================================================${NC}"
     echo -e "   ${DARKGRAY}(c) 2026 Tom Spark. Licensed under MIT+Attribution.${NC}"
     echo -e "   ${RED}Unauthorized copying without credit = DMCA takedown.${NC}"

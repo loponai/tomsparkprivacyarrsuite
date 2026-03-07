@@ -10,7 +10,7 @@ A setup script that automatically deploys a complete *arr stack (Sonarr, Radarr,
 
 [![Download ZIP](https://img.shields.io/badge/Download-ZIP-blue?style=for-the-badge&logo=github)](https://github.com/loponai/tomsparkprivacyarrsuite/archive/refs/heads/main.zip)
 
-> **Need a VPN?** [**NordVPN**](https://nordvpn.tomspark.tech/) (4 extra months FREE!) | [**ProtonVPN**](https://protonvpn.tomspark.tech/) (3 months FREE!) | [**Surfshark**](https://surfshark.tomspark.tech/) (3 extra months FREE!)
+> **Need a VPN?** NordVPN, ProtonVPN, or Surfshark are all supported. See [What You'll Need](#what-youll-need) below.
 
 <details>
 <summary><b>Windows (Docker Desktop) - Recommended for beginners</b></summary>
@@ -376,6 +376,43 @@ Username is `admin`. Change the password after logging in.
 All VPN containers share Gluetun's network = Zero IP leaks
 ```
 
+## Remote Access with Tailscale
+
+Want to access your media server from anywhere — your phone, a laptop at a coffee shop, or a family member's house? [Tailscale](https://tailscale.com/) creates a private, encrypted network between your devices with zero configuration.
+
+### Install Tailscale on the machine running Privacy Box
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up
+```
+
+### Access your apps from anywhere
+
+Once Tailscale is running, access Jellyfin, Sonarr, Radarr, and all other services using your machine's Tailscale IP (shown after `tailscale up`):
+
+- Jellyfin: `http://[tailscale-ip]:8096`
+- Sonarr: `http://[tailscale-ip]:8989`
+- Radarr: `http://[tailscale-ip]:7878`
+- qBittorrent: `http://[tailscale-ip]:8080`
+
+### Share with family
+
+Use [Tailscale node sharing](https://tailscale.com/kb/1084/sharing) to give family members access to your Jellyfin server without exposing anything to the public internet.
+
+### Expose Jellyfin publicly (optional)
+
+If you want anyone to access Jellyfin without installing Tailscale:
+
+```bash
+tailscale funnel 8096
+```
+
+This gives you a public HTTPS URL with automatic SSL — no port forwarding, no domain purchase, no reverse proxy setup needed.
+
+### Run on a home PC instead of a VPS
+
+With Tailscale, there is no need to pay for a VPS. You can run the full Privacy Box stack on a spare home PC, NUC, or mini server and access it from anywhere through your Tailscale network. This saves you a monthly hosting bill while keeping everything private.
+
 ## License
 
 **MIT License with Attribution Requirement**
@@ -385,16 +422,6 @@ You are free to use, modify, and share this software, but you **MUST credit Tom 
 **Required attribution:** `Created by Tom Spark - youtube.com/@TomSparkReviews`
 
 Failure to attribute = DMCA takedown. See [LICENSE](LICENSE) for full terms.
-
-## Support This Project
-
-This project is free and open source. If you'd like to support development:
-
-| Provider | Deal |
-|----------|------|
-| **[NordVPN](https://nordvpn.tomspark.tech/)** | 4 extra months FREE! Fastest speeds ([RealVPNSpeeds.com](https://realvpnspeeds.com)) |
-| **[ProtonVPN](https://protonvpn.tomspark.tech/)** | 3 months FREE! Swiss privacy |
-| **[Surfshark](https://surfshark.tomspark.tech/)** | 3 extra months FREE! Unlimited devices |
 
 ## Need Help?
 
