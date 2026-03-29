@@ -44,7 +44,13 @@ services:
     networks:
       - default
       - internal
-    restart: always
+    healthcheck:
+      test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -59,8 +65,15 @@ services:
       - ./media/downloads:/data/downloads
     network_mode: service:gluetun
     depends_on:
-      - gluetun
-    restart: always
+      gluetun:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -73,8 +86,15 @@ services:
       - ./config/prowlarr:/config
     network_mode: service:gluetun
     depends_on:
-      - gluetun
-    restart: always
+      gluetun:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9696/ping", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -89,8 +109,15 @@ services:
       - ./media/downloads:/data/downloads
     network_mode: service:gluetun
     depends_on:
-      - gluetun
-    restart: always
+      gluetun:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8989/ping", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -105,8 +132,15 @@ services:
       - ./media/downloads:/data/downloads
     network_mode: service:gluetun
     depends_on:
-      - gluetun
-    restart: always
+      gluetun:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7878/ping", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   # --- Media Server (accessible on local network) ---
   jellyfin:
@@ -123,9 +157,17 @@ services:
       - ./media/tv:/data/tvshows
       - ./media/movies:/data/movies
       - ./media/music:/data/music
-    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   # --- SABnzbd (Optional - enable with: docker compose --profile sabnzbd up -d) ---
+  # NOTE: SABnzbd is NOT routed through VPN. Usenet traffic is already SSL-encrypted,
+  # and routing through VPN would conflict with qBittorrent's port inside gluetun.
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
     container_name: sabnzbd
@@ -140,7 +182,7 @@ services:
     volumes:
       - ./config/sabnzbd:/config
       - ./media/downloads:/data/downloads
-    restart: always
+    restart: unless-stopped
 
   # --- Lidarr (Optional - enable with: docker compose --profile lidarr up -d) ---
   lidarr:
@@ -158,8 +200,15 @@ services:
       - ./media/downloads:/data/downloads
     network_mode: service:gluetun
     depends_on:
-      - gluetun
-    restart: always
+      gluetun:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8686/ping", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   # --- Notifications (Optional - enable with: docker compose --profile notifications up -d) ---
   notifiarr:
@@ -176,7 +225,7 @@ services:
     volumes:
       - ./config/notifiarr:/config
       - /var/run/utmp:/var/run/utmp:ro
-    restart: always
+    restart: unless-stopped
 
   # --- FlareSolverr (Optional - enable with: docker compose --profile flaresolverr up -d) ---
   flaresolverr:
@@ -187,8 +236,7 @@ services:
     environment:
       - LOG_LEVEL=info
       - TZ=${TZ}
-    ports:
-      - 8191:8191   # FlareSolverr (for debugging/testing)
+    # No host ports needed — Prowlarr reaches FlareSolverr via the internal network
     networks:
       - internal
-    restart: always
+    restart: unless-stopped
